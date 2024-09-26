@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pret Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/17.0.2/umd/react.development.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/17.0.2/umd/react-dom.development.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@3.6.0/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@3.6.0/locale/es/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@3.6.0/locale/ru/cdn.min.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-white text-blue-900">
+    <div id="root"></div>
+
+    <script type="text/babel">
+      const { useState } = React;
+      const { format, addDays, subDays } = dateFns;
+
+      const Dashboard = () => {
+        const [currentDate, setCurrentDate] = useState(new Date());
+        const [showCalendar, setShowCalendar] = useState(false);
+        const [showSettings, setShowSettings] = useState(false);
+        const [searchQuery, setSearchQuery] = useState("");
+
+        const transactionStats = [
+          { type: "Sales", amount: 5000 },
+          { type: "Refunds", amount: 250 },
+          { type: "Subscriptions", amount: 1500 },
+          { type: "Renewals", amount: 3000 },
+        ];
+
+        const handlePrevDate = () =>
+          setCurrentDate((date) => subDays(date, 1));
+        const handleNextDate = () =>
+          setCurrentDate((date) => addDays(date, 1));
+        const toggleCalendar = () => setShowCalendar(!showCalendar);
+        const toggleSettings = () => setShowSettings(!showSettings);
+
+        const handleSearchChange = (e) => setSearchQuery(e.target.value);
+
+        return (
+          <div className="flex flex-col h-screen">
+            <header className="bg-blue-600 text-white p-4">
+              <div className="flex items-center justify-between">
+                <h1 className="text-2xl font-bold">Pret Dashboard</h1>
+                <div className="flex items-center space-x-4">
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                    placeholder="Search..."
+                    className="p-2 rounded-md bg-white text-blue-900"
+                  />
+                  <span>{format(new Date(), "EEE, MMM dd, yyyy HH:mm")}</span>
+                  <button
+                    onClick={toggleSettings}
+                    className="p-2 rounded-full bg-white text-blue-600"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-6 w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M12 8c-1.105 0-2 .895-2 2s.895 2 2 2 2-.895 2-2-.895-2-2-2zm10 2c0-1.105-.895-2-2-2h-1.586a2 2 0 00-1.414-.586L15.414 5.414A2 2 0 0014 4.586V3c0-1.105-.895-2-2-2s-2 .895-2 2v1.586a2 2 0 00-.586 1.414L9.586 7.414A2 2 0 008 8.586V10c0 1.105.895 2 2 2h1.586a2 2 0 001.414.586l2.414 2.414c.586.586.586 1.414 0 2l-2.414 2.414A2 2 0 0012 18.414V20c0 1.105.895 2 2 2s2-.895 2-2v-1.586a2 2 0 001.414-.586l2.414-2.414A2 2 0 0022 14.586V12c0-1.105-.895-2-2-2zm-8-8a2 2 0 012 2h-2a2 2 0 010-2zm6 12a2 2 0 110-4 2 2 0 010 4zm-12 0a2 2 0 110-4 2 2 0 010 4zm6 6a2 2 0 110-4 2 2 0 010 4z"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              {showSettings && (
+                <div className="mt-2 p-4 bg-blue-100 rounded-lg shadow-md">
+                  <h2 className="text-lg font-semibold mb-2">Settings</h2>
+                  <p>Settings content goes here.</p>
+                </div>
+              )}
+            </header>
+
+            <main className="flex-grow p-4 bg-blue-50">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-white p-4 rounded-lg shadow-md">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-xl font-semibold">
+                      Daily Transaction Stats
+                    </h2>
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={handlePrevDate}
+                        className="p-1 bg-blue-500 text-white rounded"
+                      >
+                        Prev
+                      </button>
+                      <button
+                        onClick={toggleCalendar}
+                        className="px-3 py-1 bg-blue-500 text-white rounded"
+                      >
+                        {format(currentDate, "MMM dd, yyyy")}
+                      </button>
+                      <button
+                        onClick={handleNextDate}
+                        className="p-1 bg-blue-500 text-white rounded"
+                      >
+                        Next
+                      </button>
+                    </div>
+                  </div>
+
+                  {showCalendar && (
+                    <input
+                      type="date"
+                      className="mb-4 p-2 border rounded shadow"
+                      onChange={(e) =>
+                        setCurrentDate(new Date(e.target.value))
+                      }
+                    />
+                  )}
+
+                  <table className="w-full">
+                    <thead>
+                      <tr className="bg-blue-200">
+                        <th className="p-2 text-left">Transaction Type</th>
+                        <th className="p-2 text-right">Amount</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {transactionStats.map((stat, index) => (
+                        <tr
+                          key={index}
+                          className={
+                            index % 2 === 0 ? "bg-blue-50" : "bg-white"
+                          }
+                        >
+                          <td className="p-2">{stat.type}</td>
+                          <td className="p-2 text-right">
+                            ${stat.amount.toLocaleString()}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="bg-white p-4 rounded-lg shadow-md">
+                  <h2 className="text-xl font-semibold">Box 2</h2>
+                  <p>Content for Box 2 goes here.</p>
+                </div>
+              </div>
+
+              <div className="bg-white p-4 mt-4 rounded-lg shadow-md">
+                <h2 className="text-xl font-semibold mb-2 text-blue-600">
+                  Quick Links
+                </h2>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                  <a href="#" className="text-blue-600 hover:underline">
+                    Link 1
+                  </a>
+                  <a href="#" className="text-blue-600 hover:underline">
+                    Link 2
+                  </a>
+                  <a href="#" className="text-blue-600 hover:underline">
+                    Link 3
+                  </a>
+                  <a href="#" className="text-blue-600 hover:underline">
+                    Link 4
+                  </a>
+                  <a href="#" className="text-blue-600 hover:underline">
+                    Link 5
+                  </a>
+                  <a href="#" className="text-blue-600 hover:underline">
+                    Link 6
+                  </a>
+                </div>
+              </div>
+            </main>
+          </div>
+        );
+      };
+
+      ReactDOM.render(<Dashboard />, document.getElementById("root"));
+    </script>
+  </body>
+</html>

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pret Dashboard</title>
+    <!-- React and ReactDOM -->
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <!-- Babel for JSX transformation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide React -->
+    <!-- <script src="https://unpkg.com/lucide-react@latest"></script> -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+
+        // Replace these with CDN links for React Icons
+// const Calendar = React.lazy(() => import('react-icons/fa/Calendar'));
+// const ChevronLeft = React.lazy(() => import('react-icons/fa/ChevronLeft'));
+// const ChevronRight = React.lazy(() => import('react-icons/fa/ChevronRight'));
+// const Search = React.lazy(() => import('react-icons/fa/Search'));
+// const Settings = React.lazy(() => import('react-icons/fa/Settings'));
+        const { useState, useEffect } = React;
+        const { Calendar, ChevronLeft, ChevronRight, Search, Settings } = lucide.icons;
+
+        const Icon = ({ icon, ...props }) => {
+            const LucideIcon = icon;
+            return <LucideIcon {...props} />;
+        };
+
+        const fetchData = async (date) => {
+            // This is a placeholder. Replace with actual fetch logic
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    resolve([
+                        { type: 'Cash', amount: 100 },
+                        { type: 'Credit Card', amount: 200 },
+                        { type: 'Debit Card', amount: 150 },
+                    ]);
+                }, 500);
+            });
+        };
+
+        const Dashboard = () => {
+            const [currentDate, setCurrentDate] = useState(new Date());
+            const [searchTerm, setSearchTerm] = useState('');
+            const [transactions, setTransactions] = useState([]);
+            const [currentTime, setCurrentTime] = useState(new Date());
+            const [showDatePicker, setShowDatePicker] = useState(false);
+            const [dateRange, setDateRange] = useState({ from: '', to: '' });
+            const [dayType, setDayType] = useState('all');
+
+            useEffect(() => {
+                const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+                return () => clearInterval(timer);
+            }, []);
+
+            useEffect(() => {
+                fetchData(currentDate.toISOString().split('T')[0]).then(setTransactions);
+            }, [currentDate]);
+
+            const changeDate = (days) => {
+                const newDate = new Date(currentDate);
+                newDate.setDate(newDate.getDate() + days);
+                setCurrentDate(newDate);
+            };
+
+            const handleDateChange = (e) => {
+                setCurrentDate(new Date(e.target.value));
+                setShowDatePicker(false);
+            };
+
+            const handleDateRangeChange = (e) => {
+                setDateRange({ ...dateRange, [e.target.name]: e.target.value });
+            };
+
+            const transactionTypes = ['Cash', 'Credit Card', 'Debit Card', 'Mobile Payment', 'Check'];
+
+            return (
+                <div className="flex flex-col h-screen bg-white">
+                    {/* Top bar */}
+                    <div className="bg-blue-600 text-white p-4">
+                        <div className="flex justify-between items-center">
+                            <h1 className="text-2xl font-bold">Pret</h1>
+                            <div>{currentTime.toLocaleString()}</div>
+                        </div>
+                    </div>
+
+                    {/* Menu bar */}
+                    <div className="bg-blue-500 text-white p-4 flex justify-between items-center">
+                        <div className="flex items-center space-x-4">
+                            <Icon icon={Settings} className="cursor-pointer" />
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <input
+                                type="text"
+                                placeholder="Search..."
+                                className="p-2 text-black"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                            <Icon icon={Search} className="cursor-pointer" />
+                        </div>
+                    </div>
+
+                    {/* Main content */}
+                    <div className="flex-grow p-4 flex space-x-4">
+                        {/* Box 1: Transactions */}
+                        <div className="flex-1 border border-blue-300 p-4">
+                            <div className="flex justify-between items-center mb-4">
+                                <h2 className="text-xl font-semibold">Daily Transactions</h2>
+                                <div className="flex items-center space-x-2">
+                                    <Icon icon={ChevronLeft} className="cursor-pointer" onClick={() => changeDate(-1)} />
+                                    <Icon icon={Calendar} 
+                                        className="cursor-pointer" 
+                                        onClick={() => setShowDatePicker(!showDatePicker)} 
+                                    />
+                                    <Icon icon={ChevronRight} className="cursor-pointer" onClick={() => changeDate(1)} />
+                                </div>
+                            </div>
+                            {showDatePicker && (
+                                <input 
+                                    type="date" 
+                                    value={currentDate.toISOString().split('T')[0]} 
+                                    onChange={handleDateChange}
+                                    className="mb-4"
+                                />
+                            )}
+                            <div className="mb-4 font-bold">
+                                Selected Date: {currentDate.toDateString()}
+                            </div>
+                            <table className="w-full">
+                                <thead>
+                                    <tr>
+                                        <th>Type</th>
+                                        <th>Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {transactions.map((transaction, index) => (
+                                        <tr key={index}>
+                                            <td>{transaction.type}</td>
+                                            <td>{transaction.amount}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Box 2: Date Range and Day Type Form */}
+                        <div className="flex-1 border border-blue-300 p-4">
+                            <h2 className="text-xl font-semibold mb-4">Transaction Filter</h2>
+                            <form className="space-y-4">
+                                <div>
+                                    <label className="block mb-1">From Date:</label>
+                                    <input 
+                                        type="date" 
+                                        name="from"
+                                        value={dateRange.from}
+                                        onChange={handleDateRangeChange}
+                                        className="w-full p-2 border rounded"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block mb-1">To Date:</label>
+                                    <input 
+                                        type="date" 
+                                        name="to"
+                                        value={dateRange.to}
+                                        onChange={handleDateRangeChange}
+                                        className="w-full p-2 border rounded"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block mb-1">Day Type:</label>
+                                    <select 
+                                        value={dayType} 
+                                        onChange={(e) => setDayType(e.target.value)}
+                                        className="w-full p-2 border rounded"
+                                    >
+                                        <option value="all">All Days</option>
+                                        <option value="weekday">Weekdays</option>
+                                        <option value="weekend">Weekends</option>
+                                    </select>
+                                </div>
+                                <button 
+                                    type="submit" 
+                                    className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+                                >
+                                    Apply Filter
+                                </button>
+                            </form>
+                        </div>
+
+                        {/* Box 3: Transaction Type Links */}
+                        <div className="flex-1 border border-blue-300 p-4">
+                            <h2 className="text-xl font-semibold mb-4">Transaction Types</h2>
+                            <ul>
+                                {transactionTypes.map((type, index) => (
+                                    <li key={index} className="mb-2">
+                                        <a href={`#${type.toLowerCase().replace(' ', '-')}`} className="text-blue-500 hover:underline">
+                                            {type}
+                                        </a>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
+
+                    {/* Footer with links */}
+                    <div className="bg-blue-600 text-white p-4">
+                        <nav>
+                            <ul className="flex justify-around">
+                                <li><a href="#" className="hover:underline">Home</a></li>
+                                <li><a href="#" className="hover:underline">Reports</a></li>
+                                <li><a href="#" className="hover:underline">Help</a></li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<Dashboard />, document.getElementById('root'));
+    </script>
+</body>
+</html>

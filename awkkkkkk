@@ -1,0 +1,1 @@
+zcat input_data.gz | awk '{sum[$1] += 0; for(i=2; i<=NF; i++) split($i, a, ":"); sum[$1] += a[2]} END {for (branch in sum) print branch "," sum[branch]}' | sort > branch_totals.csv

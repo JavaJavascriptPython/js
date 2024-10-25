@@ -1,0 +1,45 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+# Method 1: Using a word list in a variable
+my @locations = qw(house school office tution park mall hospital library);
+my $location_regex = join('|', @locations);
+my $pattern1 = qr/I have a (.*?) at (?=$location_regex)/;
+
+# Method 2: Using a word list from a file
+open my $fh, '<', 'locations.txt' or die "Cannot open file: $!";
+my @file_locations = <$fh>;
+chomp @file_locations;
+close $fh;
+my $pattern2 = qr/I have a (.*?) at (?=@{[join('|', @file_locations)]})/;
+
+# Method 3: Using word boundaries and pattern matching
+# This matches any word that follows specific patterns
+my $pattern3 = qr/I have a (.*?) at (?=\w+(?:house|center|place))\w+/;
+
+# Example usage
+my $text = "I have a meeting at courthouse";
+
+if ($text =~ $pattern1) {
+    print "Pattern 1 matched: $1\n";
+}
+
+if ($text =~ $pattern3) {
+    print "Pattern 3 matched: $1\n";
+}
+
+# Testing different approaches
+sub test_patterns {
+    my $test_text = shift;
+    
+    # Test with word list
+    if ($test_text =~ /I have a (.*?) at (?=$location_regex)/) {
+        print "Matched from word list: $1\n";
+    }
+    
+    # Test with pattern matching
+    if ($test_text =~ /I have a (.*?) at (?=\w+(?:house|center|place))\w+/) {
+        print "Matched with pattern: $1\n";
+    }
+}

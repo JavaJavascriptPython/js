@@ -1,0 +1,75 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+# Test string with added Serif case
+my $test_string = q{IF SOLCODE = ZEROES
+
+IF WA-AWTC-AMOUNT >= LS-AWTC-AMOUNT MOVE "N" TO LS-AWTC-AMOUNT-CHECK-FLAG
+Some text with Serif in between
+ELSE
+
+MOVE "Y" TO LS-AWTC-AMOUNT-CHECK-FLAG
+
+END-IF
+
+ELSE
+
+IF SQLCODE = 1403
+
+DISPLAY "UTAWTC (A004): AWTC RECORD NOT FOUND" MOVE "Y" TO LS-AWTC-ERROR-MSG-FLAG
+
+ELSE
+
+DISPLAY "UTAWTC (A004): AWTC DB READ ERROR"
+
+MOVE "Y" TO LS-AWTC-ERROR-MSG-FLAG
+
+END-IF
+
+END-IF.
+
+A004-EXIT.
+
+EXIT.
+};
+
+# Updated regex pattern explanation:
+# (?:^|\s)        - Start of line or whitespace
+# IF\s+           - IF keyword followed by one or more spaces
+# (               - Start capturing group
+#   (?:          - Non-capturing group
+#     (?!        - Negative lookahead
+#       (?:^|\s)END-IF(?:\s|$) - Match END-IF only when it's a whole word
+#     )
+#     .          - Any character
+#   )*?          - Match any number of characters (non-greedy)
+# )               - End capturing group
+# (?=\s*(?:MOVE|IF|EXIT|DISPLAY)) - Positive lookahead for keywords
+
+my $pattern = qr/(?:^|\s)IF\s+((?:(?!(?:^|\s)END-IF(?:\s|$)).)*?)(?=\s*(?:MOVE|IF|EXIT|DISPLAY))/s;
+
+# Test function to show matches
+sub test_regex {
+    my ($input) = @_;
+    print "Testing string:\n$input\n\n";
+    
+    while ($input =~ /$pattern/g) {
+        print "Found match:\n";
+        print "[$1]\n";
+        print "-" x 50 . "\n";
+    }
+}
+
+# Run main test
+print "Running main test:\n";
+test_regex($test_string);
+
+# Additional test cases
+my $test_cases = q{
+IF TEST1 = SERIF MOVE X TO Y
+IF TEST2 = VALUE MOVE A TO B
+};
+
+print "\nRunning additional test cases:\n";
+test_regex($test_cases);

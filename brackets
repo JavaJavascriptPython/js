@@ -1,0 +1,37 @@
+if ($sentence =~ /AND/ && $sentence =~ /OR/ && $sentence !~ /.*AND.*OR.*|.*OR.*AND.*/) {
+    print "Error: Enclose either 'AND' or 'OR' in brackets.\n";
+}
+
+
+
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+sub process_sentence {
+    my ($sentence) = @_;
+    
+    # If sentence contains both AND and OR
+    if ($sentence =~ /\b(AND|OR)\b.*\b(AND|OR)\b/i) {
+        # Add parentheses around the second occurrence
+        $sentence =~ s/\b(AND|OR)\b(.*?)\b(AND|OR)\b/$1$2($3)/i;
+    }
+    
+    return $sentence;
+}
+
+# Test cases
+my @test_cases = (
+    "This AND that",                    # Single AND
+    "This OR that",                     # Single OR
+    "This AND that OR something",       # Both AND and OR
+    "This OR that AND something",       # Both OR and AND
+    "This AND that AND something",      # Multiple AND
+    "This OR that OR something",        # Multiple OR
+);
+
+# Run tests
+foreach my $test (@test_cases) {
+    print "Input:  $test\n";
+    print "Output: " . process_sentence($test) . "\n\n";
+}

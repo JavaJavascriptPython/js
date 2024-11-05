@@ -1,3 +1,5 @@
+
+
 if ($sentence =~ /AND/ && $sentence =~ /OR/ && $sentence !~ /.*AND.*OR.*|.*OR.*AND.*/) {
     print "Error: Enclose either 'AND' or 'OR' in brackets.\n";
 }
@@ -34,4 +36,46 @@ my @test_cases = (
 foreach my $test (@test_cases) {
     print "Input:  $test\n";
     print "Output: " . process_sentence($test) . "\n\n";
+}
+
+
+
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+sub validate_sentence {
+    my ($sentence) = @_;
+    
+    # Check if both AND and OR exist in the sentence
+    if ($sentence =~ /\b(AND|OR)\b.*\b(AND|OR)\b/i) {
+        # Check if either AND or OR is in parentheses
+        if ($sentence !~ /\([^)]*\b(AND|OR)\b[^(]*\)/i) {
+            die "Error: When both AND and OR are present, one must be enclosed in parentheses\n";
+        }
+    }
+    
+    return $sentence;
+}
+
+# Test cases
+my @test_cases = (
+    "This AND that",                          # Single AND - OK
+    "This OR that",                           # Single OR - OK
+    "This (AND) that OR something",           # Valid - AND in parentheses
+    "This AND that (OR) something",           # Valid - OR in parentheses
+    "This AND that OR something",             # Error - neither in parentheses
+    "This (AND that) OR something",           # Error - parentheses don't isolate AND
+    "This AND (that OR something)",           # Valid - OR in parentheses
+);
+
+# Run tests
+foreach my $test (@test_cases) {
+    print "Testing: $test\n";
+    eval {
+        validate_sentence($test);
+        print "Result: Valid\n\n";
+    } or do {
+        print "Result: $@\n";
+    };
 }
